@@ -504,6 +504,25 @@ function renderFretboard(){
     const dr=NS-1-s,y=MT+dr*SS;
     el('line',{x1:ML,y1:y,x2:ML+NF*FW,y2:y,stroke:'#3a3020','stroke-width':0.7+dr*0.3});
     el('text',{x:ML-8,y:y+4,'text-anchor':'middle','font-family':'IBM Plex Mono','font-size':9,fill:'#5a5040'}).textContent=snames[s];
+    // ── Open string note (fret 0) — rendered left of nut when in open position ──
+    if(START===0){
+      const opitch=open[s]%12;
+      const onote=nn(opitch,fl);
+      if(sc.has(onote)){
+        const otype=noteType(onote);
+        const ox=ML-28,or=9;
+        if(otype==='root'||otype==='added')
+          el('circle',{cx:ox,cy:y,r:or+4,fill:NCOL[otype],opacity:0.15});
+        const oMidi=stringMidi(s,0);
+        const odot=el('circle',{cx:ox,cy:y,r:or,fill:NCOL[otype],opacity:0.92,cursor:'pointer',
+          title:`Click to hear ${onote} (open string)`,'data-pitch':opitch,'data-fret':0,'data-midi':oMidi});
+        odot.addEventListener('click',()=>playNoteOnString(s,0));
+        const olabel=state.showIntervals?intervalName(opitch):onote;
+        el('text',{x:ox,y:y+3.5,'text-anchor':'middle','font-family':'IBM Plex Mono',
+          'font-size':olabel.length>2?7:8.5,fill:'#fff','font-weight':otype==='root'?'500':'400',
+          'pointer-events':'none'}).textContent=olabel;
+      }
+    }
     for(let f=1;f<=NF;f++){
       const pitch=(open[s]+START+f)%12;
       const note=nn(pitch,fl);
